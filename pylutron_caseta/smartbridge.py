@@ -575,19 +575,24 @@ class Smartbridge:
     async def _login(self):
         """Connect and login to the Smart Bridge LEAP server using SSL."""
         try:
-            await self._load_devices()
-            await self._load_lip_devices()
-            await self._load_scenes()
-            await self._load_occupancy_groups()
-            await self._subscribe_to_occupancy_groups()
 
-            for device in self.devices.values():
-                if device.get("zone") is not None:
-                    _LOG.debug("Requesting zone information from %s", device)
-                    response = await self._request(
-                        "ReadRequest", f"/zone/{device['zone']}/status"
-                    )
-                    self._handle_one_zone_status(response)
+            if self.system_type == SystemType.CASETA:
+                # Caseta specific operations. Most of them return 204 for homeworks
+                await self._load_devices()
+                await self._load_lip_devices()
+                await self._load_scenes()
+                await self._load_occupancy_groups()
+                await self._subscribe_to_occupancy_groups()
+
+                for device in self.devices.values():
+                    if device.get("zone") is not None:
+                        _LOG.debug("Requesting zone information from %s", device)
+                        response = await self._request(
+                            "ReadRequest", f"/zone/{device['zone']}/status"
+                        )
+                        self._handle_one_zone_status(response)
+                
+            await self._load_areas()
 
             if not self._login_completed.done():
                 self._login_completed.set_result(None)
