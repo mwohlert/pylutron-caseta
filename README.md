@@ -20,6 +20,9 @@ async def example():
     bridge = Smartbridge.create_tls(
         "YOUR_BRIDGE_IP", "caseta.key", "caseta.crt", "caseta-bridge.crt"
     )
+    # If you want to connect to a homeworks system be sure to specify
+    # systemType as 'homeworks', caseta will be default
+    # e.g. Smartbridge.create_tls( ..., systemType='homeworks')
     await bridge.connect()
 
     # Get the first light.
