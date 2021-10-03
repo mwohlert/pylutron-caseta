@@ -314,6 +314,47 @@ class Smartbridge:
                 },
             )
 
+    async def press_button(
+        self, button_id: str, mode: int):
+        """
+        Will simulate a button press with a given ID
+
+        :param button_id: button id to be pressed
+        :param value: mode of the button press
+        """
+
+        commandType = ""
+        if mode is 1:
+            commandType = "PressAndRelease"
+        elif mode is 2:
+            commandType = "PressAndHold"
+        elif mode is 3:
+            commandType = "MultiTap"
+
+        await self._request(
+            "CreateRequest",
+            f"/button/{button_id}/commandprocessor",
+            {
+                "Command": {
+                    "CommandType": f"{commandType}",
+                }
+           },
+        )
+
+    async def led_status(
+        self, led_id: str) -> int:
+        """
+        Will return the LED status with a given ID
+
+        :param led_id: led id to be read
+        """
+
+        led_state = await self._request("ReadRequest", f"/led/{led_id}/status")
+        if led_state.Body["LEDStatus"]["State"] == "Off":
+            return 0
+        elif led_state.Body["LEDStatus"]["State"] == "On":
+            return 1
+
     async def _send_zone_create_request(self, device_id: str, command: str):
         zone_id = self._get_zone_id(device_id)
         if not zone_id:
@@ -365,6 +406,25 @@ class Smartbridge:
                     }
                 },
             )
+
+    async def sim_press_button(self, button_id: str, mode: int, **kwargs):
+        """
+        Will turn 'on' the device with the given ID.
+
+        :param device_id: device id to turn on
+        :param **kwargs: additional parameters for sim_press_button
+        """
+        await self.press_button(button_id, mode, **kwargs)
+
+    async def get_led_status(self, led_id: str, **kwargs) -> int:
+        """
+        Will request the led status from device with the given ID.
+
+        :param led_id: led id to request status from
+        :param **kwargs: additional parameters for get_led_status
+        """
+        return await self.led_status(led_id, **kwargs)
+
 
     async def turn_on(self, device_id: str, **kwargs):
         """
@@ -518,7 +578,6 @@ class Smartbridge:
             await self._load_devices()
             await self._load_lip_devices()
             await self._load_scenes()
-            await self._load_areas()
             await self._load_occupancy_groups()
             await self._subscribe_to_occupancy_groups()
 
