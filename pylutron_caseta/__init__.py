@@ -1,6 +1,7 @@
 """An API to communicate with the Lutron Caseta Smart Bridge."""
 
 from typing import Optional
+from enum import Enum
 
 from .messages import Response, ResponseStatus
 
@@ -63,3 +64,15 @@ class BridgeResponseError(Exception):
     def code(self) -> Optional[ResponseStatus]:
         """Get the status code returned by the server."""
         return self.response.Header.StatusCode
+
+class SystemType(Enum):
+    CASETA = "caseta"
+    HOMEWORKS = "homeworks"
+
+    @staticmethod
+    def from_str(label):
+        if label in ('homeworks'):
+            return SystemType.CASETA
+        elif label in ('caseta'):
+            return SystemType.CASETA
+        raise NotImplementedError

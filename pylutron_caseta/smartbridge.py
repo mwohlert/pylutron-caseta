@@ -20,6 +20,7 @@ from . import (
     OCCUPANCY_GROUP_UNKNOWN,
     BridgeDisconnectedError,
     BridgeResponseError,
+    SystemType,
 )
 from .leap import open_connection, id_from_href, LeapProtocol
 from .messages import Response
@@ -40,8 +41,9 @@ class Smartbridge:
     It uses an SSL interface known as the LEAP server.
     """
 
-    def __init__(self, connect: Callable[[], LeapProtocol]):
+    def __init__(self, connect: Callable[[], LeapProtocol], sytemType: SystemType):
         """Initialize the Smart Bridge."""
+        self.system_type: sytemType
         self.devices: Dict[str, dict] = {}
         self.lip_devices: Dict[int, dict] = {}
         self.scenes: Dict[str, dict] = {}
@@ -101,8 +103,12 @@ class Smartbridge:
         await self._login_completed
 
     @classmethod
-    def create_tls(cls, hostname, keyfile, certfile, ca_certs, port=LEAP_PORT):
+    def create_tls(cls, hostname, keyfile, certfile, ca_certs, port=LEAP_PORT, systemType="caseta"):
         """Initialize the Smart Bridge using TLS over IPv4."""
+
+        #try to parse system name
+        systemType = SystemType.from_str(systemType)
+
         ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
         ssl_context.load_verify_locations(ca_certs)
         ssl_context.load_cert_chain(certfile, keyfile)
@@ -118,7 +124,7 @@ class Smartbridge:
             )
             return res
 
-        return cls(_connect)
+        return cls(_connect, systemType)
 
     def add_subscriber(self, device_id: str, callback_: Callable[[], None]):
         """
