@@ -43,7 +43,7 @@ class Smartbridge:
 
     def __init__(self, connect: Callable[[], LeapProtocol], systemType: SystemType):
         """Initialize the Smart Bridge."""
-        self.system_type: systemType
+        self.system_type: SystemType = systemType
         _LOG.info("System Type: %s", systemType)
         self.devices: Dict[str, dict] = {}
         self.lip_devices: Dict[int, dict] = {}
@@ -576,7 +576,7 @@ class Smartbridge:
     async def _login(self):
         """Connect and login to the Smart Bridge LEAP server using SSL."""
         try:
-
+            self.system_type = SystemType.HOMEWORKS
             if self.system_type == SystemType.CASETA:
                 # Caseta specific operations. Most of them return 204 for homeworks
                 await self._load_devices()
