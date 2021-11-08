@@ -41,9 +41,10 @@ class Smartbridge:
     It uses an SSL interface known as the LEAP server.
     """
 
-    def __init__(self, connect: Callable[[], LeapProtocol], sytemType: SystemType):
+    def __init__(self, connect: Callable[[], LeapProtocol], systemType: SystemType):
         """Initialize the Smart Bridge."""
-        self.system_type: sytemType
+        self.system_type: systemType
+        _LOG.info("System Type: %s", systemType)
         self.devices: Dict[str, dict] = {}
         self.lip_devices: Dict[int, dict] = {}
         self.scenes: Dict[str, dict] = {}
@@ -103,11 +104,11 @@ class Smartbridge:
         await self._login_completed
 
     @classmethod
-    def create_tls(cls, hostname, keyfile, certfile, ca_certs, port=LEAP_PORT, systemType="caseta"):
+    def create_tls(cls, hostname, keyfile, certfile, ca_certs, port=LEAP_PORT, systemType_str="caseta"):
         """Initialize the Smart Bridge using TLS over IPv4."""
 
         #try to parse system name
-        systemType = SystemType.from_str(systemType)
+        systemType = SystemType.from_str(systemType_str)
 
         ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
         ssl_context.load_verify_locations(ca_certs)

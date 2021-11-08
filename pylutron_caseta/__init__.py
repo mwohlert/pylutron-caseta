@@ -72,7 +72,7 @@ class SystemType(Enum):
     @staticmethod
     def from_str(label):
         if label in ('homeworks'):
-            return SystemType.CASETA
+            return SystemType.HOMEWORKS
         elif label in ('caseta'):
             return SystemType.CASETA
         raise NotImplementedError
